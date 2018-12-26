@@ -5,7 +5,6 @@ static int eval(BitBoard, BitBoard, int);
 static int evalresult(BitBoard, BitBoard, int);
 static int maxlevel(int, BitBoard, BitBoard, int myturn, int turn, int alpha, int beta);
 static int minlevel(int, BitBoard, BitBoard, int myturn, int turn, int alpha, int beta);
-static int getLineScore(BitBoard, BitBoard, int);
 
 static BitBoard board2bitboard(tBoard* pboard, int turn);
 
@@ -13,18 +12,7 @@ static BitBoard board2bitboard(tBoard* pboard, int turn);
 #define VICTORY 50000
 #define DEFEAT -50000
 
-static int linescore[8] = {
-	0,		//000
-	10, 	//001
-	-50,	//010
-	-50,	//011
-	100,	//100
-	100,	//101
-	100,	//110
-	100,	//111
-};
-
-tPos cpu_minimax(tBoard* pboard, tPlaceList* placelist, int limit)
+tPos cpu_maxstone(tBoard* pboard, tPlaceList* placelist, int limit)
 {
 	putchar('\n');
 	
@@ -110,7 +98,7 @@ static int maxlevel(int limit, BitBoard white, BitBoard black, int myturn, int t
 			score=minlevel(limit-1, white ^ (m | rev), black ^ rev, myturn, BLACK, alpha, beta);
 		else if (turn == BLACK) 
 			score=minlevel(limit-1, white ^ rev, black ^ (m | rev), myturn, WHITE, alpha, beta);
-		
+
 		if (score >= beta)
 			return score;
 
@@ -162,7 +150,7 @@ static int minlevel(int limit, BitBoard white, BitBoard black, int myturn, int t
 		
 		if (score < scoremin) {
 			scoremin = score;
-			beta = (beta <= scoremin) ? beta : scoremin;
+			beta = (beta <= scoremin) ? beta : scoremin; 
 		}
 	}
 	if (flag == 0) {
@@ -184,64 +172,18 @@ static int minlevel(int limit, BitBoard white, BitBoard black, int myturn, int t
 
 static int evalresult(BitBoard white, BitBoard black, int turn)
 {
-	if (turn == WHITE) {
-		if (getnum(white) - getnum(black) > 0)
-			return VICTORY;
-		else
-			return DEFEAT;
-	} else {
-		if (getnum(black) - getnum(white) > 0)
-			return VICTORY;
-		else
-			return DEFEAT;
-	}
+	if (turn == WHITE) 
+		return getnum(white) - getnum(black);
+	else
+		return getnum(black) - getnum(white);
 }
 
 static int eval(BitBoard white, BitBoard black, int turn)
 {
-	int placeScore = getplacenum(white, black, turn) - getplacenum(white, black, reverse(turn));
-	int lineScore = getLineScore(white, black, turn) - getLineScore(white, black, reverse(turn));
-	return 100 * placeScore + 3 * lineScore;
+	if (getnumall(white, black) != 64) {
+		fprintf(stderr, "error %d\n", getnumall(white, black));
+		exit(1);
+	}
+	evalresult(white, black, turn);
 }
 
-static int getLineScore(BitBoard white, BitBoard black, int turn)
-{
-	int score = 0;
-	BitBoard b = (turn == WHITE) ? white : black;
-	score += linescore[(b & 0xe000000000000000) >> 61];	
-	score += linescore[((b & 0x0000200000000000) >> 45) | 
-					   ((b & 0x0040000000000000) >> 53) |
-					   ((b & 0x8000000000000000) >> 61)];
-	score += linescore[((b & 0x0000800000000000) >> 47) |
-				   	   ((b & 0x0080000000000000) >> 54) |
-					   ((b & 0x8000000000000000) >> 61)];
-
-	score += linescore[(b & 0x00000000000000e0) >> 5];
-	score += linescore[((b & 0x0000000000200000) >> 21) |
-					   ((b & 0x0000000000004000) >> 13) |
-					   ((b & 0x0000000000000080) >> 5)];
-	score += linescore[((b & 0x0000000000800000) >> 23) |
-					   ((b & 0x0000000000008000) >> 14) |
-					   ((b & 0x0000000000000080) >> 5)];
-
-	score += linescore[((b & 0x0400000000000000) >> 58) |
-					   ((b & 0x0200000000000000) >> 56) |
-					   ((b & 0x0100000000000000) >> 54)];
-	score += linescore[((b & 0x0000040000000000) >> 42) |
-				  	   ((b & 0x0002000000000000) >> 48) |
-					   ((b & 0x0100000000000000) >> 54)];
-	score += linescore[((b & 0x0000010000000000) >> 40) |
-					   ((b & 0x0001000000000000) >> 47) |
-					   ((b & 0x0100000000000000) >> 54)];
-
-	score += linescore[((b & 0x0000000000000004) >> 2) |
-					   (b & 0x0000000000000002) |
-					   ((b & 0x0000000000000001) << 2)];
-	score += linescore[((b & 0x0000000000040000) >> 18) |
-					   ((b & 0x0000000000000200) >> 8) |
-					   ((b & 0x0000000000000001) << 2)];
-	score += linescore[((b & 0x0000000000010000) >> 16) |
-					   ((b & 0x0000000000000100) >> 7) |
-					   ((b & 0x0000000000000001) << 2)];
-	return score;
-}

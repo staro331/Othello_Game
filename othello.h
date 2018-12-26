@@ -11,7 +11,7 @@
 #define BOARD_SIZE 8
 
 #define CPU_MIN 0
-#define CPU_MAX 1
+#define CPU_MAX 2
 #define CPU_CALCULATE_TIME 3
 
 #define OUTBOARD -1
@@ -77,7 +77,8 @@ void freeBoard(tBoard*);
 
 tPos othello_cpu(tBoard*, tPlaceList*, int);
 tPos cpu_random(tPlaceList*);
-tPos cpu_minimax(tBoard*, tPlaceList*);
+tPos cpu_minimax(tBoard*, tPlaceList*, int);
+tPos cpu_maxstone(tBoard*, tPlaceList*, int);
 
 int reverse(int);
 

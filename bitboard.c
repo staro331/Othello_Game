@@ -14,12 +14,12 @@ int getnumall(BitBoard white, BitBoard black)
 int getnum(BitBoard board)
 {
 	BitBoard b = board;
-	b = (b & 0x5555555555555555) & ((b & 0xaaaaaaaaaaaaaaaa) >> 1);
-	b = (b & 0x3333333333333333) & ((b & 0xcccccccccccccccc) >> 2);
-	b = (b & 0x0f0f0f0f0f0f0f0f) & ((b & 0xf0f0f0f0f0f0f0f0) >> 4);
-	b = (b & 0x00ff00ff00ff00ff) & ((b & 0xff00ff00ff00ff00) >> 8);
-	b = (b & 0x0000ffff0000ffff) & ((b & 0xffff0000ffff0000) >> 16);
-	b = (b & 0x00000000ffffffff) & ((b & 0xffffffff00000000) >> 32);
+	b = (b & 0x5555555555555555) + ((b & 0xaaaaaaaaaaaaaaaa) >> 1);
+	b = (b & 0x3333333333333333) + ((b & 0xcccccccccccccccc) >> 2);
+	b = (b & 0x0f0f0f0f0f0f0f0f) + ((b & 0xf0f0f0f0f0f0f0f0) >> 4);
+	b = (b & 0x00ff00ff00ff00ff) + ((b & 0xff00ff00ff00ff00) >> 8);
+	b = (b & 0x0000ffff0000ffff) + ((b & 0xffff0000ffff0000) >> 16);
+	b = (b & 0x00000000ffffffff) + ((b & 0xffffffff00000000) >> 32);
 	return b;
 }
 
